@@ -23,7 +23,7 @@ CyanoEnv01 <- left_join(CyanoEcotypes01, EnvData01, by = "Name") %>%
 VirCyanoEnv <- left_join(VirData02, CyanoEnv01, by = "name")
 
 Vir <- VirCyanoEnv[,names(VirData02)]
-CyanoEnv <- VirCyanoEnv[,names(CyanoEnv01)] %>% select(name, !ends_with("proportion"))
+CyanoEnv <- VirCyanoEnv[,names(CyanoEnv01)] %>% select(name, !ends_with("proportion"), -contains("total_pro"))
 Cyano <- CyanoEnv %>% select(name, ends_with("reads"))
 
 ## Make matrices
