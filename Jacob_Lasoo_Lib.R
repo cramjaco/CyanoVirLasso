@@ -43,3 +43,78 @@ ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec){
   rmse_overall <- mean(rmse_folds_vec)
   rmse_overall
 }
+
+opt_lam_fn <- function(Y, X, folds_vec){
+  optimize(function(x){
+  ymtx_jcv(VirMat, CyanoEnvMat, lam = x, folds_vec = folds_vec)
+  }, interval = c(0, 0.1))
+}
+
+xy_common_lasoo <- function(Y, X, folds = 10){
+  folds_vec = sample(rep(1:folds, length = nrow(X)), replace = FALSE)
+  OptimalLambdaSet <- opt_lam_fn(Y, X, folds_vec)
+  print(OptimalLambdaSet)
+  OptimalLambda <- OptimalLambdaSet$minimum
+  ymtx_lasoo(Y, X, OptimalLambda)
+}
+
+
+make_nodes_table <- function(VirusNames, CyanoNames, EnvNames){
+  
+  VirNodes <- data.frame(Node = VirusNames, Type = "Virus")
+  CyanoNodes <- data.frame(Node = CyanoNames, Type = "Cyano")
+  EnvNodes <- data.frame(Node = EnvNames, Type = "Env")
+  
+  Nodes <- bind_rows(VirNodes, CyanoNodes, EnvNodes) %>%
+    mutate(shape = case_when(Type == "Virus" ~ "vrectangle", Type == "Cyano" ~ "circle", Type == "Env" ~ "square")) %>%
+    mutate(color = case_when(Type == "Virus" ~ "white", Type == "Cyano" ~ "green", Type == "Env" ~ "blue")) %>%
+    mutate(label = str_remove(Node, "ocean_region_"),
+           label = str_remove(label, "depth_regime_"),
+           label = str_remove(label, "oxygen_category_"),
+           label = str_remove(label, "_reads")
+    )
+  
+  Nodes
+}
+
+make_edges_table <- function(CoefMtx){
+  CoefDf <- as_tibble(CoefMtx, rownames = "Cyano")
+  Edges <- CoefDf %>% pivot_longer(cols = -Cyano, names_to = "Vir", values_to = "Coef") %>%
+    filter(Coef !=0) %>%
+    mutate(color = if_else(Coef>0, "black", "red")) %>%
+    mutate(lty = if_else(Coef > 0, 1, 2)) %>%
+    mutate(width = sqrt(abs(Coef)) * 5) %>%
+    pass
+  Edges
+}
+
+only_strong_cyano_edges <- function(Edges){
+  Edges2 <- Edges %>% #[starts_with(Edges$Cyano, "[:upper:]"),] %>%
+    filter(str_starts(Cyano, "[:upper:]")) %>%
+    #mutate(width = sqrt(abs(Coef)) * 20) %>%
+    pass
+  Edges2
+}
+
+# only_strong_env_edges <- function(Edges){
+#   Edges2 <- Edges[!str_detect(Edges$Cyano, "reads"),] %>%
+#     #mutate(width = sqrt(abs(Coef)) * 20) %>%
+#     pass
+#   Edges2
+# }
+
+only_cyano_nodes <- function(Nodes){
+  
+  Nodes2 <- Nodes %>%
+    filter(Type != "Env")
+  
+  Nodes2
+}
+
+no_cyano_nodes <- function(Nodes){
+  
+  Nodes2 <- Nodes %>%
+    filter(Type != "Cyano")
+  
+  Nodes2
+}

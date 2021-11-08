@@ -88,3 +88,5 @@ Nodes2 <- Nodes %>%
 CVGraph2 <- graph_from_data_frame(d = Edges2, directed = FALSE, vertices = Nodes2)
 
 plot(CVGraph2, vertex.size = 15)
+
+
