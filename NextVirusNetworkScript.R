@@ -24,12 +24,12 @@ plot(CVGraph2, vertex.size = 15)
 
 tkplot(CVGraph2, vertex.size = 15)
 
-## Enviromental Network
-
-EdgesEnv <- CoefMtx %>% make_edges_table() %>% only_strong_env_edges()
-NodesEnv <- make_nodes_table(colnames(VirMat), colnames(CyanoMat), EnvNames) %>% no_cyano_nodes()
-
-CVGraphEnv <- graph_from_data_frame(d = EdgesEnv, directed = FALSE, vertices = NodesEnv)
-
-plot(CVGraphEnv, vertex.size = 15)
-
+# ## Enviromental Network
+# 
+# EdgesEnv <- CoefMtx %>% make_edges_table() %>% only_strong_env_edges()
+# NodesEnv <- make_nodes_table(colnames(VirMat), colnames(CyanoMat), EnvNames) %>% no_cyano_nodes()
+# 
+# CVGraphEnv <- graph_from_data_frame(d = EdgesEnv, directed = FALSE, vertices = NodesEnv)
+# 
+# plot(CVGraphEnv, vertex.size = 15)
+# 

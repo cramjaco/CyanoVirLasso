@@ -42,7 +42,8 @@ fix_geo_station <- function(tib) {
 }
   
 
-CyanoTransformed <- jacob_clr(CyanoProportions) %>%
+CyanoTransformed <- CyanoProportions %>%
+  #jacob_clr() %>%
   rename_with(~str_remove(., " proportion$")) %>%
   fix_geo_station() %>%
   pass()
@@ -65,7 +66,8 @@ VirData02 <- VirData01 %>%
   pass
 
 VirTransformed <- VirData02 %>%
-  mutate(across(c(-Name), logJp)) %>%
+  #mutate(across(c(-Name), logJp)) %>%
+  mutate(across(c(-Name), sqrt)) %>%
  # Make the names the same
   pass
 

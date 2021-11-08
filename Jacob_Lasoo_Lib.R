@@ -47,7 +47,7 @@ ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec){
 opt_lam_fn <- function(Y, X, folds_vec){
   optimize(function(x){
   ymtx_jcv(VirMat, CyanoEnvMat, lam = x, folds_vec = folds_vec)
-  }, interval = c(0, 0.1))
+  }, interval = c(0, 3))
 }
 
 xy_common_lasoo <- function(Y, X, folds = 10){
@@ -91,7 +91,7 @@ make_edges_table <- function(CoefMtx){
 only_strong_cyano_edges <- function(Edges){
   Edges2 <- Edges %>% #[starts_with(Edges$Cyano, "[:upper:]"),] %>%
     filter(str_starts(Cyano, "[:upper:]")) %>%
-    #mutate(width = sqrt(abs(Coef)) * 20) %>%
+    mutate(width = sqrt(abs(Coef)) * 2) %>%
     pass
   Edges2
 }
