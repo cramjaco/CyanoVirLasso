@@ -26,6 +26,13 @@ Locations <- EnvData00 %>% select(latitude, longitude, OceanRegion = `Ocean Regi
   mutate(latitude = parse_latitude(latitude),
          longitude = parse_longitude(longitude))
 
+# For David
+Locations01 <- bind_rows(Locations0,
+                       tribble(~latitude, ~longitude, ~OceanRegion,
+                               37.35361, 0.286194, "Mediterranean"
+                               )
+                       )
+
 #ggplot(Locations, aes(y = latitude, x = longitude, col = OceanRegion)) + geom_point()
 
 library(rnaturalearth)
@@ -33,9 +40,18 @@ library(rnaturalearthdata)
 world <- ne_coastline(scale = 110, returnclass = "sf")
 ggplot(data = world) + geom_sf(color = "grey30", fill = "grey90")
 
+ggplot(data = world) + geom_sf(color = "grey30", fill = "grey90") + geom_point(data = Locations, aes(x = longitude, y = latitude) ) +
+  coord_sf(xlim = c(-170, -20), ylim = c(-35, 40)) + theme_bw()
+ggsave("SampleMap.pdf")
+
 ggplot(data = world) + geom_sf(color = "grey30", fill = "grey90") + geom_point(data = Locations, aes(x = longitude, y = latitude, fill = OceanRegion, shape = OceanRegion) ) +
   coord_sf(xlim = c(-170, -20), ylim = c(-35, 40)) + theme_bw() + scale_shape_manual(values = rep(21:25, 3)) + scale_fill_viridis_d()
 
+## David Map
+ggplot(data = world) + geom_sf(color = "grey30", fill = "grey90") + geom_point(data = Locations01, aes(x = longitude, y = latitude) ) +
+  coord_sf(xlim = c(-170, 0), ylim = c(-35, 40)) + theme_bw()
+ggsave("MapForDavidGarcia.png")
+ggsave("MapForDavidGarcia.svg")
 
 ## Plots of viruses
 
@@ -49,9 +65,7 @@ TargetThings <- left_join(
   by = c("Name" = "name")
 )
 cb10 <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a')
-Cram, Jacob <jcram@umces.edu>
-	
-Wed, Feb 6, 2019, 2:55 PM
+
 	
 library(cowplot)
 # More color-blind friendly colorbalettes

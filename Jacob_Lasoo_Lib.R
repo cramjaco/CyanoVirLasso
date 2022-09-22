@@ -9,7 +9,7 @@ ymtx_lasoo <- function(Y, X, lam){
   CoefMtx <- matrix(nrow = ncol(X), ncol = ncol(Y), dimnames = list(colnames(X), colnames(Y)))
   nY = ncol(Y)
   for (iter in 1:nY){
-    fit_loc <- glmnet(y = Y[,iter], x = X, family = "gaussian", lower.limits = 0)
+      fit_loc <- glmnet(y = Y[,iter], x = X, family = "gaussian", lower.limits = 0)
     coef_loc00 <- as.matrix(coef(fit_loc, s = lam))#[2:ncol(X),]
     coef_loc01 <- coef_loc00[2:(ncol(X) + 1),]
     CoefMtx[,iter] <- coef_loc01
@@ -17,7 +17,7 @@ ymtx_lasoo <- function(Y, X, lam){
   CoefMtx
 }
 
-ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec){
+ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec, return.list = FALSE){
   if(nrow(X) != nrow(Y)){stop("X and Y matrices must have the same number of rows")}
   #folds_vec = sample(rep(1:10, length = nrow(X)), replace = FALSE)
   rmse_folds_vec <- vector(length = folds)
@@ -41,13 +41,15 @@ ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec){
     rmse_folds_vec[loc_fold] <- rmse_allY_fold
   }
   rmse_overall <- mean(rmse_folds_vec)
-  rmse_overall
+  rmse_se <- sd(rmse_folds_vec)
+  if(return.list){return(list(rmse_mean = rmse_overall, rmse_se = rmse_se, rmse_all = rmse_folds_vec))}
+  return(rmse_overall)
 }
 
 opt_lam_fn <- function(Y, X, folds_vec){
   optimize(function(x){
-  ymtx_jcv(VirMat, CyanoEnvMat, lam = x, folds_vec = folds_vec)
-  }, interval = c(0, 3))
+  ymtx_jcv(X, Y, lam = 10^x, folds_vec = folds_vec)
+  }, interval = c(-3, 3))
 }
 
 xy_common_lasoo <- function(Y, X, folds = 10){
