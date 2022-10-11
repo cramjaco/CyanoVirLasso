@@ -5,8 +5,10 @@ library(igraph)
 # Debug
 
 # Run calculation
-CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat)
-
+CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat[,c(1:24, 26:27)]) # after 24 breaks everything, why did this start now? c(1:24, 25)
+# why did this stop working?
+# And after I ran the hacking script, it magically started working again?
+# In any case, suboxic and mesopelagic have only one non-zero in them and thats why they like to fail. I have cut them out above
 
 ## Processing
 
