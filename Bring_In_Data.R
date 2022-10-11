@@ -2,14 +2,15 @@ library(tidyverse)
 library(readxl)
 library(janitor)
 library(fastDummies)
+library(here)
 
 pass <- function(x){x}
 
-CyanoEcotypes00 <- read_excel("data/ITS_ecotypes_cut.xlsx")
+CyanoEcotypes00 <- read_excel(here("data", "September22", "ITS_ecotypes_cut_Jacob.xlsx"))
 CyanoEcotypes01 <- CyanoEcotypes00 %>% select(Name, `HLI reads`:`Total Pro proportion`, -`...17`)
-EnvData00 <- read_excel("data/Metadata_cyano.xlsx")
-EnvData01 <- EnvData00 %>% select(-c(latitude:Year))
-VirData00 <- read_excel("data/Myocyanophage_ratio_spreadsheet_cut.xlsx")
+EnvData00 <- read_excel(here("data", "September22", "Metadata_cut_cyano.xlsx"))
+EnvData01 <- EnvData00 %>% select(-c(`latitude N`:Year))
+VirData00 <- read_excel(here("data", "September22", "Myocyanophage_ratio_spreadsheet2_cut-CAF.xlsx"))
 VirData01 <- VirData00 %>% select(-`Depth(m)`)
 
 CyanoProportions <- CyanoEcotypes01 %>%
