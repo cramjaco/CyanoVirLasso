@@ -1,11 +1,11 @@
-source("Bring_In_Data.R")
-source("Jacob_Lasoo_Lib.R")
+source(here::here("Bring_In_Data.R"))
+source(here::here("Jacob_Lasoo_Lib.R"))
 library(igraph)
 
 # Debug
 
 # Run calculation
-CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat[,c(1:24, 26:27)]) # after 24 breaks everything, why did this start now? c(1:24, 25)
+CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat) # breaks if there are columns wiht only one zero in CyanoEnvMat
 # why did this stop working?
 # And after I ran the hacking script, it magically started working again?
 # In any case, suboxic and mesopelagic have only one non-zero in them and thats why they like to fail. I have cut them out above
@@ -32,6 +32,8 @@ tkplot(CVGraph2, vertex.size = 15)
 EdgesEnv <- CoefMtx %>% make_edges_table() #%>% only_strong_env_edges()
 NodesEnv <- make_nodes_table(colnames(VirMat), colnames(CyanoMat), EnvNames) #%>% no_cyano_nodes()
 
+CVGraphEnv <- graph_from_data_frame(d = EdgesEnv, directed = FALSE)
+# not working for now
 CVGraphEnv <- graph_from_data_frame(d = EdgesEnv, directed = FALSE, vertices = NodesEnv)
 
 plot(CVGraphEnv, vertex.size = 15)
@@ -82,4 +84,4 @@ dev.off()
 
 ## Something very strange is happening
 
-save.image("x08Nov2021.Rdata")
+save.image("x11Oct2022.Rdata")
