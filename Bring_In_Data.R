@@ -72,17 +72,18 @@ VirTransformed <- VirData02 %>%
  # Make the names the same
   pass
 
-CyanoEnv01 <- left_join(CyanoTransformed, EnvTransformed, by = "Name") %>%
+CyanoEnv01 <- inner_join(CyanoTransformed, EnvTransformed, by = "Name") %>%
   #clean_names() %>%
   #mutate(Name = str_replace(Name, "GA03_St", "GeoSt")) %>% # Make the names the same
   filter(Name %in% VirData02$Name)
 
 # Join everything so their rows are the same
-VirCyanoEnv <- left_join(VirTransformed, CyanoEnv01, by = "Name")
+# there is a row HOT272_125m, missing in env, we'll eliminate that from the combined data
+VirCyanoEnv <- inner_join(VirTransformed, CyanoEnv01, by = "Name")
 
 Vir <- VirCyanoEnv[,names(VirTransformed)]
 CyanoEnv <- VirCyanoEnv[,names(CyanoEnv01)] %>% select(Name, !ends_with("reads"), -contains("total_pro"))
-Cyano <- CyanoEnv
+Cyano <- CyanoEnv %>% select(Name:Syn)
 
 # If variance is too low in CyanoEnvMat, then glassoo doesn't work. This tends to happen for some ocean regions
 # |depth_regime|oxygen_category
@@ -105,7 +106,7 @@ CyanoEnvMat <- CyanoEnvMat[,UseThese]
 rownames(CyanoEnvMat) <- CyanoEnv$Name
 
 VirMat <- Vir %>% column_to_rownames("Name") %>% as.matrix() %>% scale()
-CyanoMat <- CyanoEnvMat #%>% column_to_rownames("Name") %>% as.matrix()  %>% scale()
+CyanoMat <- Cyano %>% column_to_rownames("Name") %>% as.matrix()  %>% scale()
 
 
 
