@@ -2,10 +2,16 @@ source(here::here("Bring_In_Data.R"))
 source(here::here("Jacob_Lasoo_Lib.R"))
 library(igraph)
 
+## Functions
+delete_isolated <- function(G){
+  Isolated = which(degree(G) == 0)
+  G2 = delete.vertices(G, Isolated)
+}
+
 # Debug
 
 # Run calculation
-CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat) # breaks if there are columns with only one zero in CyanoEnvMat
+CoefMtx <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat, ll = 0) # breaks if there are columns with only one zero in CyanoEnvMat
 # why did this stop working?
 # And after I ran the hacking script, it magically started working again?
 # In any case, suboxic and mesopelagic have only one non-zero in them and thats why they like to fail. I have cut them out above
@@ -21,10 +27,7 @@ Nodes <- make_nodes_table(colnames(VirMat),CyanoNames, EnvNames) %>% only_cyano_
 
 ## Plotting
 
-delete_isolated <- function(G){
-  Isolated = which(degree(G) == 0)
-  G2 = delete.vertices(G, Isolated)
-}
+
 
 CVGraph2 <- graph_from_data_frame(d = Edges, directed = FALSE, vertices = Nodes)
 
@@ -54,51 +57,20 @@ tkp <- tkplot(CVGraphEnv, vertex.size = 15)
 tkCoords <- tkplot.getcoords(tkp, norm = FALSE)
 plot(CVGraphEnv, vertex.size = 15, layout = tkCoords)
 
-## Not messing with lambdas anymore. Just going with sparse network
-# ## Explore Lambda
-# folds_overvec <- sample(rep(1:10, length = nrow(CyanoMat)), replace = FALSE)
-# Lambda_Values <- 10^seq(from = -2, to = 0, by = 0.1)
-# OutVec <- rep(NA, length(Lambda_Values))
-# for(iter in 1:length(Lambda_Values)){
-#    out <- ymtx_jcv(VirMat, CyanoEnvMat, lam = Lambda_Values[iter], folds_vec = folds_overvec)
-#    print(c(log10(Lambda_Values[iter]), out))
-#    OutVec[iter] <- out
-# }
-# 
-# Lambda_Test_Df <- tibble(lambda = Lambda_Values)
-# Lambda_Test_Df <- Lambda_Test_Df %>%
-#   mutate(score = purrr::map(lambda, ~ymtx_jcv(VirMat, CyanoEnvMat, ., folds_overvec)))
-# 
-# ## Set higher thresholds
-# 
-# Test_Lambda <- .14
-# 
-# # Run calculation
-# CoefMtx <- ymtx_lasoo(Y = VirMat, X = CyanoEnvMat, Test_Lambda)
-# 
-# 
-# ## Processing
-# 
-# 
-# EnvNames <- colnames(EnvTransformed)[-1]
-# CyanoNames <- colnames(CyanoTransformed)[-1]
-# 
-# Edges <- CoefMtx %>% make_edges_table() %>% only_strong_cyano_edges()
-# Nodes <- make_nodes_table(colnames(VirMat),CyanoNames, EnvNames) %>% only_cyano_nodes()
-# 
-# ## Plotting
-# 
-# CVGraph_Higher <- graph_from_data_frame(d = Edges, directed = FALSE, vertices = Nodes)
-# 
-# plot(CVGraph_Higher)
-# tkplot(CVGraph_Higher, vertex.size = 15)
-# tkCoords <- tkplot.getcoords(2, norm = FALSE)
-# plot(CVGraph_Higher, vertex.size = 15, layout = tkCoords)
-# 
-# svg("CyanoVirLambda0.2.svg")
-# plot(CVGraph_Higher, vertex.size = 15, layout = tkCoords)
-# dev.off()
+## With negative values
 
-## Something very strange is happening
+# Run calculation
+CoefMtx_Neg <- xy_common_lasoo(Y = VirMat, X = CyanoEnvMat, ll = -Inf)
 
-save.image("x11Oct2022.Rdata")
+Edges_Neg <- CoefMtx_Neg %>% make_edges_table() %>% only_strong_cyano_edges()
+
+
+CVGraph2_Neg <- graph_from_data_frame(d = Edges_Neg, directed = FALSE, vertices = Nodes)
+
+CVGraph2_Neg_Connected <- delete_isolated(CVGraph2_Neg)
+
+plot(CVGraph2_Neg_Connected, vertex.size = 15)
+
+tkp2 <- tkplot(CVGraph2_Neg_Connected, vertex.size = 15)
+tkCoords2 <- tkplot.getcoords(tkp2, norm = FALSE)
+plot(CVGraph2_Connected)

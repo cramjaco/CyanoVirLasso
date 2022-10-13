@@ -5,11 +5,12 @@ pass <- function(x){x}
 folds_overvec <- sample(rep(1:10, length = nrow(CyanoMat)), replace = FALSE)
 folds_overvec2 <- sample(rep(1:10, length = nrow(CyanoMat)), replace = FALSE)
 
-ymtx_lasoo <- function(Y, X, lam){
+## ll = lower.limits
+ymtx_lasoo <- function(Y, X, lam, ll = 0){
   CoefMtx <- matrix(nrow = ncol(X), ncol = ncol(Y), dimnames = list(colnames(X), colnames(Y)))
   nY = ncol(Y)
   for (iter in 1:nY){
-      fit_loc <- glmnet(y = Y[,iter], x = X, family = "gaussian", lower.limits = 0)
+      fit_loc <- glmnet(y = Y[,iter], x = X, family = "gaussian", lower.limits = ll)
     coef_loc00 <- as.matrix(coef(fit_loc, s = lam))#[2:ncol(X),]
     coef_loc01 <- coef_loc00[2:(ncol(X) + 1),]
     CoefMtx[,iter] <- coef_loc01
@@ -17,7 +18,7 @@ ymtx_lasoo <- function(Y, X, lam){
   CoefMtx
 }
 
-ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec, return.list = FALSE){
+ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, ll = 0, folds_vec = folds_overvec, return.list = FALSE){
   if(nrow(X) != nrow(Y)){stop("X and Y matrices must have the same number of rows")}
   #folds_vec = sample(rep(1:10, length = nrow(X)), replace = FALSE)
   rmse_folds_vec <- vector(length = folds)
@@ -46,18 +47,18 @@ ymtx_jcv <- function(Y, X, folds = 10, lam = 0.1, folds_vec = folds_overvec, ret
   return(rmse_overall)
 }
 
-opt_lam_fn <- function(Y, X, folds_vec){
+opt_lam_fn <- function(Y, X, folds_vec, ll = 0){
   optimize(function(x){
-  ymtx_jcv(X, Y, lam = 10^x, folds_vec = folds_vec)
+  ymtx_jcv(X, Y, lam = 10^x, folds_vec = folds_vec, ll = ll)
   }, interval = c(-3, 3))
 }
 
-xy_common_lasoo <- function(Y, X, folds = 10){
+xy_common_lasoo <- function(Y, X, folds = 10, ll = 0){
   folds_vec = sample(rep(1:folds, length = nrow(X)), replace = FALSE)
-  OptimalLambdaSet <- opt_lam_fn(Y, X, folds_vec)
+  OptimalLambdaSet <- opt_lam_fn(Y, X, folds_vec, ll = ll)
   print(OptimalLambdaSet)
   OptimalLambda <- OptimalLambdaSet$minimum
-  ymtx_lasoo(Y, X, OptimalLambda)
+  ymtx_lasoo(Y, X, OptimalLambda, ll = ll)
 }
 
 
