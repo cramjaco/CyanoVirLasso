@@ -87,6 +87,7 @@ make_edges_table <- function(CoefMtx){
     mutate(color = if_else(Coef>0, "black", "red")) %>%
     mutate(lty = if_else(Coef > 0, 1, 2)) %>%
     mutate(width = sqrt(abs(Coef)) * 5) %>%
+    mutate(label = signif(Coef, digits = 2))
     pass
   Edges
 }

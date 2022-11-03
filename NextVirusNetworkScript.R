@@ -33,11 +33,17 @@ CVGraph2 <- graph_from_data_frame(d = Edges, directed = FALSE, vertices = Nodes)
 
 CVGraph2_Connected <- delete_isolated(CVGraph2)
 
-plot(CVGraph2_Connected, vertex.size = 15)
+plot(CVGraph2_Connected, vertex.size = 20,
+     vertex.label.cex = .8,
+     edge.label.cex = 0.8,
+     edge.label.dist = 1,
+     edge.label.color = "black",
+     edge.color = adjustcolor(E(CVGraph2_Connected)$color, 0.5)
+     )
 
-tkp1 <- tkplot(CVGraph2_Connected, vertex.size = 15)
-tkCoords1 <- tkplot.getcoords(tkp1, norm = FALSE)
-plot(CVGraph2_Connected)
+# tkp1 <- tkplot(CVGraph2_Connected, vertex.size = 15)
+# tkCoords1 <- tkplot.getcoords(tkp1, norm = FALSE)
+# plot(CVGraph2_Connected, layout = tkCoords1)
 
 ## Enviromental Network
 
@@ -69,8 +75,62 @@ CVGraph2_Neg <- graph_from_data_frame(d = Edges_Neg, directed = FALSE, vertices 
 
 CVGraph2_Neg_Connected <- delete_isolated(CVGraph2_Neg)
 
-plot(CVGraph2_Neg_Connected, vertex.size = 15)
+plot(CVGraph2_Neg_Connected, vertex.size = 20,
+     vertex.label.cex = .8,
+     edge.label.cex = 0.8,
+     edge.label.dist = 1,
+     edge.label.color = "black",
+     edge.color = adjustcolor(E(CVGraph2_Connected)$color, 0.5))
 
-tkp2 <- tkplot(CVGraph2_Neg_Connected, vertex.size = 15)
-tkCoords2 <- tkplot.getcoords(tkp2, norm = FALSE)
-plot(CVGraph2_Connected)
+# tkp2 <- tkplot(CVGraph2_Neg_Connected, vertex.size = 15)
+# tkCoords2 <- tkplot.getcoords(tkp2, norm = FALSE)
+# plot(CVGraph2_Connected)
+
+## 
+# Combine the two networks
+
+PNUnion <- union(CVGraph2_Connected, CVGraph2_Neg_Connected)
+tkp_union <- tkplot(PNUnion)
+tkCoordsUnion <- tkplot.getcoords(tkp_union, norm = FALSE)
+
+# par(mfrow =c(1,2))
+# plot(CVGraph2_Connected, layout = tkCoordsUnion)
+# plot(CVGraph2_Neg_Connected, layout = tkCoordsUnion)
+# # Not quite working. 
+
+UnionCoords <- tibble(Node = names(V(PNUnion)), X = tkCoordsUnion[,1], Y = tkCoordsUnion[,2])
+
+PosV <- tibble(Node = names(V(CVGraph2_Connected)))
+
+PosNegV <- tibble(Node = names(V(CVGraph2_Neg_Connected)))
+
+PosCoords_df <- inner_join(PosV, UnionCoords)
+
+PosNegCoords_df <- inner_join(PosNegV, UnionCoords)
+
+PosCoords_mtx <- PosCoords_df[,c(2,3)] %>% as.matrix()
+
+PosNegCoords_mtx <- PosNegCoords_df[,c(2,3)] %>% as.matrix()
+
+svg(file = "TwoCyanovirus.svg")
+par(mfrow = c(1,2))
+plot(CVGraph2_Connected, layout = PosCoords_mtx,
+     vertex.size = 25,
+     vertex.label.cex = .5,
+     edge.label.cex = 0.5,
+     edge.label.dist = 1,
+     edge.label.color = "black",
+     edge.color = adjustcolor(E(CVGraph2_Connected)$color, 0.75)
+    )
+
+plot(CVGraph2_Neg_Connected, layout = PosNegCoords_mtx,
+     vertex.size = 25,
+     vertex.label.cex = .5,
+     edge.label.cex = 0.5,
+     edge.label.dist = 1,
+     edge.label.color = "black",
+     edge.color = adjustcolor(E(CVGraph2_Neg_Connected)$color, 0.75)
+     )
+dev.off()
+
+save.image("x2022Oct13.RData")
